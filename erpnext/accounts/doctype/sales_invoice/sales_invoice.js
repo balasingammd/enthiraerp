@@ -1042,6 +1042,7 @@ frappe.ui.form.on("Sales Invoice", {
 							to_time: data.to_time,
 							project: data.project,
 						});
+						frm.set_value("project", data.project);
 						d.hide();
 					},
 					primary_action_label: __("Get Timesheets"),
