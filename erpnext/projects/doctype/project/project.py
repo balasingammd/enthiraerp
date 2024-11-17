@@ -67,6 +67,7 @@ class Project(Document):
 		total_billed_amount: DF.Currency
 		total_consumed_material_cost: DF.Currency
 		total_costing_amount: DF.Currency
+		total_ordered_cost: DF.Currency
 		total_purchase_cost: DF.Currency
 		total_sales_amount: DF.Currency
 		users: DF.Table[ProjectUser]
@@ -295,6 +296,7 @@ class Project(Document):
 		self.actual_time = from_time_sheet.time
 
 		self.update_purchase_costing()
+		self.update_ordered_costing()
 		self.update_sales_amount()
 		self.update_billed_amount()
 		self.calculate_gross_margin()
@@ -311,8 +313,12 @@ class Project(Document):
 			self.per_gross_margin = (self.gross_margin / flt(self.total_billed_amount)) * 100
 
 	def update_purchase_costing(self):
-		total_purchase_cost = calculate_total_purchase_cost(self.name)
+		total_purchase_cost = get_total_purchase_cost(self.name)
 		self.total_purchase_cost = total_purchase_cost and total_purchase_cost[0][0] or 0
+
+	def update_ordered_costing(self):
+		total_ordered_cost = get_total_ordered_cost(self.name)
+		self.total_ordered_cost = total_ordered_cost and total_ordered_cost[0][0] or 0
 
 	def update_sales_amount(self):
 		total_sales_amount = frappe.db.sql(
@@ -729,7 +735,7 @@ def get_users_email(doc):
 	return [d.email for d in doc.users if frappe.db.get_value("User", d.user, "enabled")]
 
 
-def calculate_total_purchase_cost(project: str | None = None):
+def get_total_purchase_cost(project: str | None = None):
 	if project:
 		pitem = qb.DocType("Purchase Invoice Item")
 		total_purchase_cost = (
@@ -739,16 +745,42 @@ def calculate_total_purchase_cost(project: str | None = None):
 			.run(as_list=True)
 		)
 		return total_purchase_cost
-	return None
+	return 0.0
 
 
 @frappe.whitelist()
 def recalculate_project_total_purchase_cost(project: str | None = None):
 	if project:
-		total_purchase_cost = calculate_total_purchase_cost(project)
+		total_purchase_cost = get_total_purchase_cost(project)
 		frappe.db.set_value(
 			"Project",
 			project,
 			"total_purchase_cost",
 			(total_purchase_cost and total_purchase_cost[0][0] or 0),
+		)
+
+
+def get_total_ordered_cost(project: str | None = None):
+	if project:
+		pitem = qb.DocType("Purchase Order Item")
+		frappe.qb.DocType("Purchase Order Item")
+		total_ordered_cost = (
+			qb.from_(pitem)
+			.select(Sum(pitem.base_net_amount))
+			.where((pitem.project == project) & (pitem.docstatus == 1))
+			.run(as_list=True)
+		)
+		return total_ordered_cost
+	return 0.0
+
+
+@frappe.whitelist()
+def recalculate_project_total_ordered_cost(project: str | None = None):
+	if project:
+		total_ordered_cost = get_total_ordered_cost(project)
+		frappe.db.set_value(
+			"Project",
+			project,
+			"total_ordered_cost",
+			(total_ordered_cost and total_ordered_cost[0][0] or 0),
 		)
