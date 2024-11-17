@@ -1033,6 +1033,16 @@ frappe.ui.form.on("Sales Invoice", {
 							fieldtype: "Link",
 							options: "Project",
 							default: frm.doc.project,
+							get_query: function () {
+								if (!frm.doc.customer) {
+									return {};
+								}
+								return {
+									filters: {
+										customer: frm.doc.customer,
+									},
+								};
+							},
 						},
 					],
 					primary_action: function () {
