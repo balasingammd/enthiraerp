@@ -123,3 +123,25 @@ class TimesheetDetail(Document):
 				indicator="orange",
 				alert=True,
 			)
+
+	def validate_mandatory_fields(self, needs_activity_type: bool = False):
+		for fieldname in ("from_time", "to_time"):
+			if not self.get(fieldname):
+				frappe.throw(
+					_("Row {0}: Please set {1}.").format(
+						self.idx,
+						_(self.meta.get_label(fieldname)),
+					)
+				)
+
+		if needs_activity_type and not self.activity_type:
+			frappe.throw(
+				_("Row {0}: please set {1}.").format(self.idx, _(self.meta.get_label("activity_type")))
+			)
+
+		if flt(self.hours) == 0.0:
+			frappe.throw(
+				_("Row {0}: The value of the field {1} cannot be 0.").format(
+					self.idx, _(self.meta.get_label("hours"))
+				)
+			)
