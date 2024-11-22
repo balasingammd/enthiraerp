@@ -421,6 +421,55 @@ class TestJournalEntry(unittest.TestCase):
 		account_balance = get_balance_on(account="_Test Bank - _TC", cost_center=cost_center)
 		self.assertEqual(expected_account_balance, account_balance)
 
+	def test_toggle_debit_credit_if_negative(self):
+		from erpnext.accounts.general_ledger import process_gl_map
+
+		# Create JV with defaut cost center - _Test Cost Center
+		frappe.db.set_single_value("Accounts Settings", "merge_similar_account_heads", 0)
+
+		jv = frappe.new_doc("Journal Entry")
+		jv.posting_date = nowdate()
+		jv.company = "_Test Company"
+		jv.user_remark = "test"
+		jv.extend(
+			"accounts",
+			[
+				{
+					"account": "_Test Cash - _TC",
+					"debit": 100 * -1,
+					"debit_in_account_currency": 100 * -1,
+					"exchange_rate": 1,
+				},
+				{
+					"account": "_Test Bank - _TC",
+					"credit": 100 * -1,
+					"credit_in_account_currency": 100 * -1,
+					"exchange_rate": 1,
+				},
+			],
+		)
+
+		jv.flags.ignore_validate = True
+		jv.save()
+
+		self.assertEqual(len(jv.accounts), 2)
+
+		gl_map = jv.build_gl_map()
+
+		for row in gl_map:
+			if row.account == "_Test Cash - _TC":
+				self.assertEqual(row.debit, 100 * -1)
+				self.assertEqual(row.debit_in_account_currency, 100 * -1)
+				self.assertEqual(row.debit_in_transaction_currency, 100 * -1)
+
+		gl_map = process_gl_map(gl_map, False)
+
+		for row in gl_map:
+			if row.account == "_Test Cash - _TC":
+				self.assertEqual(row.credit, 100)
+				self.assertEqual(row.credit_in_account_currency, 100)
+				self.assertEqual(row.credit_in_transaction_currency, 100)
+
 
 def make_journal_entry(
 	account1,
