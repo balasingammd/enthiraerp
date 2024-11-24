@@ -257,6 +257,7 @@
   },
   {
    "bold": 1,
+   "fetch_from": "project.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "hide_days": 1,
@@ -2215,7 +2216,7 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2024-07-18 15:30:39.428519",
+ "modified": "2024-11-17 14:41:06.277356",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",

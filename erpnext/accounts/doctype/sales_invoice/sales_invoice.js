@@ -1033,6 +1033,16 @@ frappe.ui.form.on("Sales Invoice", {
 							fieldtype: "Link",
 							options: "Project",
 							default: frm.doc.project,
+							get_query: function () {
+								if (!frm.doc.customer) {
+									return {};
+								}
+								return {
+									filters: {
+										customer: frm.doc.customer,
+									},
+								};
+							},
 						},
 					],
 					primary_action: function () {
@@ -1042,6 +1052,7 @@ frappe.ui.form.on("Sales Invoice", {
 							to_time: data.to_time,
 							project: data.project,
 						});
+						frm.set_value("project", data.project);
 						d.hide();
 					},
 					primary_action_label: __("Get Timesheets"),
