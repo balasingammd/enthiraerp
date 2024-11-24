@@ -108,6 +108,8 @@ calendars = ["Task", "Work Order", "Sales Order", "Holiday List", "ToDo"]
 
 website_generators = ["BOM", "Sales Partner"]
 
+importable_doctypes = ["EDI Template"]
+
 website_context = {
 	"favicon": "/assets/erpnext/images/erpnext-favicon.svg",
 	"splash_image": "/assets/erpnext/images/erpnext-logo.svg",

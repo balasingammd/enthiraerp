@@ -1,0 +1,196 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "prompt",
+ "creation": "2024-09-30 01:20:23.368052",
+ "description": "EDI templates allows you to create and manage jinja templates and bind them to a doctype for your Electronic Data Interchange needs.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "bound_doctype",
+  "column_break_stvp",
+  "is_standard",
+  "module",
+  "section_break_wpws",
+  "inbound_column",
+  "api_endpoint",
+  "outound_column",
+  "status",
+  "condition",
+  "submit_config",
+  "section_break_rxld",
+  "bindings_column",
+  "bound_common_codes",
+  "section_break_lvdn",
+  "template",
+  "validation_section",
+  "validation",
+  "schema"
+ ],
+ "fields": [
+  {
+   "fieldname": "bound_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bound Doctype",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Code",
+   "label": "Template",
+   "options": "Jinja"
+  },
+  {
+   "description": "Only \"Staging\" & \"Production\" states will be operational.",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nStaging\nProduction\nObsolete",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_standard",
+   "fieldtype": "Check",
+   "label": "Is Standard"
+  },
+  {
+   "depends_on": "is_standard",
+   "fieldname": "module",
+   "fieldtype": "Link",
+   "label": "Module",
+   "mandatory_depends_on": "is_standard",
+   "options": "Module Def"
+  },
+  {
+   "fieldname": "column_break_stvp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_lvdn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "is_standard",
+   "fieldname": "validation",
+   "fieldtype": "Code",
+   "label": "Validation",
+   "options": "XML"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "validation_section",
+   "fieldtype": "Section Break",
+   "label": "Validate"
+  },
+  {
+   "depends_on": "is_standard",
+   "fieldname": "schema",
+   "fieldtype": "Code",
+   "label": "Schema",
+   "options": "XML"
+  },
+  {
+   "fieldname": "section_break_rxld",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bindings_column",
+   "fieldtype": "Column Break",
+   "label": "Bindings"
+  },
+  {
+   "description": "Each link to a bound document will be complemented by an instance of this common code under the given attribute name in the rendering context.",
+   "fieldname": "bound_common_codes",
+   "fieldtype": "Table",
+   "label": "Bound Common Codes",
+   "options": "Bound EDI Template Common Codes"
+  },
+  {
+   "depends_on": "is_standard",
+   "description": "The available context is: <code>{ doc: ..., status: ..., method: ...}</code>.<br><ul><li><code>status</code> refers to this template's status</li>\n<li><code>method</code> is the hook which triggered the evaluation, e.g. <code>\"on_submit\"</code></li>\n</ul>",
+   "fieldname": "condition",
+   "fieldtype": "Code",
+   "label": "Condition",
+   "max_height": "100px",
+   "options": "Python"
+  },
+  {
+   "fieldname": "section_break_wpws",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "inbound_column",
+   "fieldtype": "Column Break",
+   "label": "Inbound"
+  },
+  {
+   "fieldname": "outound_column",
+   "fieldtype": "Column Break",
+   "label": "Outound"
+  },
+  {
+   "fieldname": "api_endpoint",
+   "fieldtype": "Link",
+   "label": "API Endpoint",
+   "link_filters": "[[\"Server Script\", \"script_type\", \"=\", \"API\"]]",
+   "options": "Server Script"
+  },
+  {
+   "fieldname": "submit_config",
+   "fieldtype": "Link",
+   "label": "Submit Config",
+   "options": "EDI Submit Config"
+  }
+ ],
+ "links": [
+  {
+   "link_doctype": "EDI Log",
+   "link_fieldname": "edi"
+  }
+ ],
+ "modified": "2024-11-17 11:37:07.248503",
+ "modified_by": "Administrator",
+ "module": "EDI",
+ "name": "EDI Template",
+ "naming_rule": "Set by user",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Yellow",
+   "title": "Draft"
+  },
+  {
+   "color": "Pink",
+   "title": "Staging"
+  },
+  {
+   "color": "Blue",
+   "title": "Production"
+  },
+  {
+   "color": "Gray",
+   "title": "Obsolete"
+  }
+ ],
+ "track_changes": 1
+}

@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "creation": "2024-10-02 14:44:32.673063",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "submit_section",
+  "submit_url",
+  "config_type",
+  "sign_section",
+  "column_break_cukx",
+  "password",
+  "column_break_bhda",
+  "keyfile",
+  "column_break_leim",
+  "certfile"
+ ],
+ "fields": [
+  {
+   "fieldname": "submit_url",
+   "fieldtype": "Data",
+   "label": "Submit URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "submit_section",
+   "fieldtype": "Section Break",
+   "label": "Submit"
+  },
+  {
+   "fieldname": "sign_section",
+   "fieldtype": "Section Break",
+   "label": "Sign"
+  },
+  {
+   "fieldname": "keyfile",
+   "fieldtype": "Attach",
+   "label": "Keyfile"
+  },
+  {
+   "fieldname": "certfile",
+   "fieldtype": "Attach",
+   "label": "Certfile"
+  },
+  {
+   "fieldname": "column_break_cukx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "column_break_bhda",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Select type (if available) to show more specific options.",
+   "fieldname": "config_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Config Type"
+  },
+  {
+   "fieldname": "column_break_leim",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-11-17 13:55:29.708852",
+ "modified_by": "Administrator",
+ "module": "EDI",
+ "name": "EDI Submit Config",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "submit_url"
+}
