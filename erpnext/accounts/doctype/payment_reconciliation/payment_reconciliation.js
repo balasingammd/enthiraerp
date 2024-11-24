@@ -131,6 +131,24 @@ erpnext.accounts.PaymentReconciliationController = class PaymentReconciliationCo
 				},
 			});
 		}
+
+		// Initialise display field
+		if (!this.frm.fields_dict.invoices_display) {
+			$(this.frm.fields_dict.invoices.wrapper).before(
+				'<div id="invoices_display" style="margin-bottom: 15px;"></div>'
+			);
+			$(this.frm.fields_dict.payments.wrapper).before(
+				'<div id="payments_display" style="margin-bottom: 15px;"></div>'
+			);
+		}
+
+		// call select_total function while clicking Invoice Table or Payment Table
+		this.frm.fields_dict["invoices"].grid.wrapper.on("click", ".grid-row-check", (event) => {
+			this.frm.trigger("select_total");
+		});
+		this.frm.fields_dict["payments"].grid.wrapper.on("click", ".grid-row-check", (event) => {
+			this.frm.trigger("select_total");
+		});
 	}
 	set_query_for_dimension_filters() {
 		frappe.call({
@@ -187,6 +205,9 @@ erpnext.accounts.PaymentReconciliationController = class PaymentReconciliationCo
 				},
 			});
 		}
+
+		// call select_total function while changing party field
+		this.frm.trigger("select_total");
 	}
 
 	receivable_payable_account() {
@@ -374,6 +395,59 @@ erpnext.accounts.PaymentReconciliationController = class PaymentReconciliationCo
 				this.frm.refresh();
 			},
 		});
+	}
+
+	select_total() {
+		// Helper function to sum the values of a field in an array of rows
+		const sumField = (rows, field) => rows.reduce((sum, row) => sum + (row[field] || 0), 0);
+
+		// Get selected invoices and payments
+		const selectedInvoices = this.frm.fields_dict.invoices.grid.get_selected_children();
+		const selectedPayments = this.frm.fields_dict.payments.grid.get_selected_children();
+
+		// Calculate totals for selected invoices and payments
+		const selectedInvoiceAmt = sumField(selectedInvoices, "outstanding_amount");
+		const selectedPaymentAmt = sumField(selectedPayments, "amount");
+
+		// Calculate total for all invoices and payments
+		const invoiceTotal = sumField(this.frm.doc.invoices || [], "outstanding_amount");
+		const paymentTotal = sumField(this.frm.doc.payments || [], "amount");
+
+		// Calculate differences
+		const totalOutstanding = invoiceTotal - paymentTotal;
+		const selectedDifference = selectedInvoiceAmt - selectedPaymentAmt;
+
+		// Prepare HTML for invoices and payments display ${currencyFormatter.format(invoiceTotal)}
+		const invoicesHtml = `
+			<div style="font-weight: bold; font-size: 14px; color: green;">
+				<p>Invoice Total: ${this.remove_currency_symbol(invoiceTotal)}
+
+				</p>
+			</div>
+			<div style="font-weight: bold; font-size: 14px; color: red;">
+				<p>Selected Invoice's: ${this.remove_currency_symbol(selectedInvoiceAmt)}</p>
+			</div>
+		`;
+
+		const paymentsHtml = `
+			<div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; color: green;">
+				<p>Payment Total: ${this.remove_currency_symbol(paymentTotal)}</p>
+				<p style="color: blue;"> Total Outstanding: ${this.remove_currency_symbol(totalOutstanding)} </p>
+			</div>
+			<div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; color: red;">
+				<p>Selected Payment's: ${this.remove_currency_symbol(selectedPaymentAmt)}</p>
+				<p style="color: blue;"> Selected Amount: ${this.remove_currency_symbol(selectedDifference)} </p>
+			</div>
+		`;
+
+		// Update the HTML in the DOM
+		$("#invoices_display").html(invoicesHtml);
+		$("#payments_display").html(paymentsHtml);
+	}
+	remove_currency_symbol(amount) {
+		// Remove any non-numeric characters except for commas, periods, and negative signs
+		let formatted = format_currency(amount);
+		return formatted.replace(/[^0-9.,-]/g, "");
 	}
 };
 
