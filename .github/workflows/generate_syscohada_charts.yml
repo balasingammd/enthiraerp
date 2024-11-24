@@ -1,0 +1,35 @@
+name: Generate Syscohada charts of accounts for affiliated countries
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "**/erpnext/accounts/doctype/account/chart_of_accounts/verified/syscohada*.json"
+  workflow_dispatch:
+
+jobs:
+  generate-syscohada-charts:
+    name: Generate charts of accounts
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ["develop"]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Script to generate charts files
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/update_syscohada_charts.sh
+        env:
+            GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+            BASE_BRANCH: ${{ matrix.branch }}
+            PR_REVIEWER: n-traore # change to your GitHub username if you copied this file
