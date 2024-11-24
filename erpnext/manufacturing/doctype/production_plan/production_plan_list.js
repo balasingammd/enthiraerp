@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 frappe.listview_settings["Production Plan"] = {
+=======
+frappe.listview_settings['Production Plan'] = {
+>>>>>>> 69d88a9212 (fix: Production Plan: load document defaults for plan items & remove name column from listview (#26584))
 	hide_name_column: true,
 	add_fields: ["status"],
 	filters: [["status", "!=", "Closed"]],

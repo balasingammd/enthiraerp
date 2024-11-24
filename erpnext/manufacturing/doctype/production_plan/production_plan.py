@@ -481,6 +481,7 @@ class ProductionPlan(Document):
 						{"sales_order": data.parent, "sales_order_item": data.name, "qty": data.pending_qty}
 					)
 
+<<<<<<< HEAD
 			bom_no = data.bom_no or item_details and item_details.get("bom_no") or ""
 			if not bom_no:
 				continue
@@ -499,6 +500,19 @@ class ProductionPlan(Document):
 					"product_bundle_item": data.parent_item,
 				},
 			)
+=======
+			pi = self.append('po_items', {
+				'warehouse': data.warehouse,
+				'item_code': data.item_code,
+				'description': data.description or item_details.description,
+				'stock_uom': item_details and item_details.stock_uom or '',
+				'bom_no': item_details and item_details.bom_no or '',
+				'planned_qty': data.pending_qty,
+				'pending_qty': data.pending_qty,
+				'planned_start_date': now_datetime(),
+				'product_bundle_item': data.parent_item
+			})
+>>>>>>> 69d88a9212 (fix: Production Plan: load document defaults for plan items & remove name column from listview (#26584))
 			pi._set_defaults()
 
 			if self.get_items_from == "Sales Order":
