@@ -49,4 +49,32 @@ function get_filters() {
 
 frappe.query_reports["General and Payment Ledger Comparison"] = {
 	filters: get_filters(),
+
+	get_datatable_options(options) {
+		return Object.assign(options, {
+			checkboxColumn: true,
+		});
+	},
+
+	onload(report) {
+		report.page.add_inner_button(__("Repost"), function () {
+			let message = `Are you sure you want to Repost Payment Ledger Entry for the selected differences?`;
+			let indexes = frappe.query_report.datatable.rowmanager.getCheckedRows();
+			let selected_rows = indexes.map((i) => frappe.query_report.data[i]);
+
+			if (!selected_rows.length) {
+				frappe.throw(__("Please select rows to create repost entries"));
+			}
+
+			frappe.confirm(__(message), () => {
+				frappe.call({
+					method: "erpnext.accounts.report.general_and_payment_ledger_comparison.general_and_payment_ledger_comparison.create_repost_payment_ledger_entry",
+					args: {
+						rows: selected_rows,
+						company: frappe.query_report.get_filter_values().company,
+					},
+				});
+			});
+		});
+	},
 };

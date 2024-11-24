@@ -5,6 +5,7 @@ import frappe
 from frappe import _, qb
 from frappe.query_builder import Criterion
 from frappe.query_builder.functions import Sum
+from frappe.utils import getdate
 
 
 class General_Payment_Ledger_Comparison:
@@ -272,3 +273,19 @@ def execute(filters=None):
 	columns, data = rpt.run()
 
 	return columns, data
+
+
+@frappe.whitelist()
+def create_repost_payment_ledger_entry(rows, company):
+	if isinstance(rows, str):
+		rows = frappe.parse_json(rows)
+
+	entry = frappe.new_doc("Repost Payment Ledger", company=company, posting_date=getdate(), add_manually=1)
+
+	for row in rows:
+		entry.append(
+			"repost_vouchers", {"voucher_type": row.get("voucher_type"), "voucher_no": row.get("voucher_no")}
+		)
+
+	entry.save()
+	entry.submit()
