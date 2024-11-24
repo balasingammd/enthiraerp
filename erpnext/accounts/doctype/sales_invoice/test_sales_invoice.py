@@ -1021,12 +1021,40 @@ class TestSalesInvoice(IntegrationTestCase):
 		pos.submit()
 
 		pos_return = make_sales_return(pos.name)
-
 		pos_return.insert()
 		pos_return.submit()
 
 		self.assertEqual(pos_return.get("payments")[0].amount, -500)
 		self.assertEqual(pos_return.get("payments")[1].amount, -500)
+
+	def test_partial_pos_returns_with_repayment(self):
+		from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_sales_return
+
+		pos_profile = make_pos_profile()
+
+		pos_profile.payments = []
+		pos_profile.append("payments", {"default": 1, "mode_of_payment": "Cash"})
+
+		pos_profile.save()
+
+		pos = create_sales_invoice(qty=10, do_not_save=True)
+
+		pos.is_pos = 1
+		pos.pos_profile = pos_profile.name
+
+		pos.append(
+			"payments", {"mode_of_payment": "Bank Draft", "account": "_Test Bank - _TC", "amount": 500}
+		)
+		pos.append("payments", {"mode_of_payment": "Cash", "account": "Cash - _TC", "amount": 500})
+		pos.insert()
+		pos.submit()
+
+		pos_return = make_sales_return(pos.name)
+		pos_return.items[0].qty = -5
+		pos_return.insert()
+		pos_return.submit()
+
+		self.assertEqual(pos_return.get("payments")[0].amount, -500)
 
 	def test_pos_change_amount(self):
 		make_pos_profile(
@@ -3875,7 +3903,13 @@ class TestSalesInvoice(IntegrationTestCase):
 			},
 		)
 		dn1.save().submit()
-
+		make_stock_entry(
+			target="_Test Warehouse - _TC",
+			item_code="_Test Item",
+			company="_Test Company",
+			qty=5,
+			basic_rate=100,
+		)
 		dn2 = create_delivery_note(do_not_submit=1)
 		dn2.items[0].qty = 5
 		dn2.items[0].rate = 100

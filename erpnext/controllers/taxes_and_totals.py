@@ -64,7 +64,7 @@ class calculate_taxes_and_totals:
 
 		self.calculate_shipping_charges()
 
-		if self.doc.doctype in ["Sales Invoice", "Purchase Invoice"]:
+		if self.doc.doctype in ["Sales Invoice", "Purchase Invoice","POS Invoice"]:
 			self.calculate_total_advance()
 
 		if self.doc.meta.get_field("other_charges_calculation"):
@@ -808,7 +808,6 @@ class calculate_taxes_and_totals:
 						self.doc.party_account_currency, invoice_total
 					)
 				)
-
 			if self.doc.docstatus.is_draft():
 				if self.doc.get("write_off_outstanding_amount_automatically"):
 					self.doc.write_off_amount = 0
@@ -845,7 +844,7 @@ class calculate_taxes_and_totals:
 		self.doc.round_floats_in(self.doc, ["grand_total", "total_advance", "write_off_amount"])
 		self._set_in_company_currency(self.doc, ["write_off_amount"])
 
-		if self.doc.doctype in ["Sales Invoice", "Purchase Invoice"]:
+		if self.doc.doctype in ["Sales Invoice", "Purchase Invoice","POS Invoice"]:
 			grand_total = self.doc.rounded_total or self.doc.grand_total
 			base_grand_total = self.doc.base_rounded_total or self.doc.base_grand_total
 
@@ -897,7 +896,7 @@ class calculate_taxes_and_totals:
 					self.doc.write_off_outstanding_amount_automatically = 1
 
 			if (
-				self.doc.doctype == "Sales Invoice"
+				self.doc.doctype in ["Sales Invoice","POS Invoice"]
 				and self.doc.get("is_pos")
 				and self.doc.get("is_return")
 				and not self.doc.get("is_consolidated")
@@ -1009,27 +1008,32 @@ class calculate_taxes_and_totals:
 				if self.doc.party_account_currency == self.doc.currency
 				else payment.base_amount
 			)
+		if total_paid_amount < total_amount_to_pay:
+			pending_amount = total_amount_to_pay
+		elif total_paid_amount > total_amount_to_pay:
+			pending_amount = total_amount_to_pay - total_paid_amount
+		else:
+			return
+			
 
-		pending_amount = total_amount_to_pay - total_paid_amount
+		default_mode_of_payment = frappe.db.get_value(
+			"POS Payment Method",
+			{"parent": self.doc.pos_profile, "default": 1},
+			["mode_of_payment"],
+			as_dict=1,
+		)
 
-		if pending_amount > 0:
-			default_mode_of_payment = frappe.db.get_value(
-				"POS Payment Method",
-				{"parent": self.doc.pos_profile, "default": 1},
-				["mode_of_payment"],
-				as_dict=1,
+		if default_mode_of_payment:
+			self.doc.payments = []
+			self.doc.append(
+				"payments",
+				{
+					"mode_of_payment": default_mode_of_payment.mode_of_payment,
+					"amount": pending_amount,
+					"default": 1,
+				},
 			)
-
-			if default_mode_of_payment:
-				self.doc.payments = []
-				self.doc.append(
-					"payments",
-					{
-						"mode_of_payment": default_mode_of_payment.mode_of_payment,
-						"amount": pending_amount,
-						"default": 1,
-					},
-				)
+		
 
 
 def get_itemised_tax_breakup_html(doc):

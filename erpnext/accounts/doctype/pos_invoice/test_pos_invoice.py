@@ -7,7 +7,7 @@ import frappe
 from frappe import _
 from frappe.tests import IntegrationTestCase
 
-from erpnext.accounts.doctype.pos_invoice.pos_invoice import make_sales_return
+from erpnext.accounts.doctype.pos_invoice.pos_invoice import PaymentValidationError, make_sales_return
 from erpnext.accounts.doctype.pos_profile.test_pos_profile import make_pos_profile
 from erpnext.accounts.doctype.sales_invoice.test_sales_invoice import create_sales_invoice
 from erpnext.stock.doctype.item.test_item import make_item
@@ -317,17 +317,17 @@ class TestPOSInvoice(IntegrationTestCase):
 		)
 
 		pos.append(
-			"payments", {"mode_of_payment": "Cash", "account": "Cash - _TC", "amount": 1000, "default": 1}
+			"payments", {"mode_of_payment": "Cash", "account": "Cash - _TC", "amount": 2000, "default": 1}
 		)
 
 		pos.insert()
 		pos.submit()
 		pos.reload()
-
 		pos_return1 = make_sales_return(pos.name)
 
 		# partial return 1
 		pos_return1.get("items")[0].qty = -1
+		pos_return1.insert()
 		pos_return1.submit()
 		pos_return1.reload()
 
@@ -932,6 +932,13 @@ class TestPOSInvoice(IntegrationTestCase):
 		finally:
 			frappe.db.rollback(save_point="before_test_delivered_serial_no_case")
 			frappe.set_user("Administrator")
+
+	def test_validate_paid_amount(self):
+		inv = create_pos_invoice(qty=10, rate=5, do_not_save=True)
+		inv.payments = []
+		inv.append("payments", {"mode_of_payment": "Cash", "account": "Cash - _TC", "amount": 45})
+		inv.insert()
+		self.assertRaises(PaymentValidationError, inv.submit)
 
 
 def create_pos_invoice(**args):
