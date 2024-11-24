@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import frappe
 from frappe import _, bold
-from frappe.utils import cint, cstr, flt, get_link_to_form, getdate
+from frappe.utils import cint, cstr, flt, get_link_to_form, getdate, today
 
 import erpnext
 from erpnext.accounts.general_ledger import (
@@ -64,6 +64,11 @@ class StockController(AccountsController):
 		self.validate_internal_transfer()
 		self.validate_putaway_capacity()
 		self.reset_conversion_factor()
+		self.validate_future_date()
+
+	def validate_future_date(self):
+		if self.docstatus == 0 and self.get("posting_date") and self.posting_date > today():
+			frappe.throw(_("Posting Date should not be more than today's date."))
 
 	def reset_conversion_factor(self):
 		for row in self.get("items"):
