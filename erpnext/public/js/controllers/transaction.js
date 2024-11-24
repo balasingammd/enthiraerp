@@ -104,6 +104,9 @@ erpnext.TransactionController = class TransactionController extends erpnext.taxe
 			frm.cscript.calculate_taxes_and_totals();
 		});
 
+		frappe.ui.form.on(this.frm.doctype, "disable_rounded_total", function(frm) {
+				cur_frm.cscript.calculate_taxes_and_totals();
+		});
 		frappe.ui.form.on(this.frm.doctype + " Item", {
 			items_add: function(frm, cdt, cdn) {
 				var item = frappe.get_doc(cdt, cdn);

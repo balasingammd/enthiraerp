@@ -786,7 +786,7 @@ class calculate_taxes_and_totals:
 
 			self.doc.total_advance = flt(total_allocated_amount, self.doc.precision("total_advance"))
 
-			grand_total = self.doc.rounded_total or self.doc.grand_total
+			grand_total = self.doc.grand_total if self.doc.disable_rounded_total else self.doc.rounded_total
 
 			if self.doc.party_account_currency == self.doc.currency:
 				invoice_total = flt(
@@ -846,8 +846,11 @@ class calculate_taxes_and_totals:
 		self._set_in_company_currency(self.doc, ["write_off_amount"])
 
 		if self.doc.doctype in ["Sales Invoice", "Purchase Invoice"]:
-			grand_total = self.doc.rounded_total or self.doc.grand_total
-			base_grand_total = self.doc.base_rounded_total or self.doc.base_grand_total
+			grand_total = self.doc.rounded_total
+			base_grand_total = self.doc.base_rounded_total
+			if self.doc.disable_rounded_total:
+				grand_total = self.doc.grand_total
+				base_grand_total = self.doc.base_grand_total
 
 			if self.doc.party_account_currency == self.doc.currency:
 				total_amount_to_pay = flt(
@@ -927,8 +930,11 @@ class calculate_taxes_and_totals:
 	def calculate_change_amount(self):
 		self.doc.change_amount = 0.0
 		self.doc.base_change_amount = 0.0
-		grand_total = self.doc.rounded_total or self.doc.grand_total
-		base_grand_total = self.doc.base_rounded_total or self.doc.base_grand_total
+		grand_total = self.doc.rounded_total
+		base_grand_total = self.doc.base_rounded_total
+		if self.doc.disable_rounded_total:
+			grand_total = self.doc.grand_total
+			base_grand_total = self.doc.base_grand_total
 
 		if (
 			self.doc.doctype == "Sales Invoice"

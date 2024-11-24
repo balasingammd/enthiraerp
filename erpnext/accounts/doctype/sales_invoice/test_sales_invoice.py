@@ -4194,6 +4194,13 @@ class TestSalesInvoice(IntegrationTestCase):
 
 		self.assertTrue(all([x == "Credit Note" for x in gl_entries]))
 
+	def test_outstanding_with_rounded_total_as_zero(self):
+		si = create_sales_invoice(qty=1, rate=0.05, do_not_submit=True)
+		si.save()
+		self.assertEqual(si.outstanding_amount, 0)
+		si.submit()
+		self.assertEqual(si.status, "Paid")
+
 
 def set_advance_flag(company, flag, default_account):
 	frappe.db.set_value(
