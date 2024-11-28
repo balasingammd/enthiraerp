@@ -1,20 +1,20 @@
-app_name = "erpnext"
-app_title = "ERPNext"
-app_publisher = "Frappe Technologies Pvt. Ltd."
+app_name = "erpenthira"
+app_title = "ERPEnthira"
+app_publisher = "Enthiramatix Pvt. Ltd."
 app_description = """ERP made simple"""
 app_icon = "fa fa-th"
 app_color = "#e74c3c"
-app_email = "info@erpnext.com"
+app_email = "balasingammd@enthiramatix.com"
 app_license = "GNU General Public License (v3)"
-source_link = "https://github.com/frappe/erpnext"
-app_logo_url = "/assets/erpnext/images/erpnext-logo.svg"
+source_link = "https://enthiramatix.com"
+app_logo_url = "/assets/erpnext/images/erpenthira-logo.svg"
 app_home = "/app/home"
 
 add_to_apps_screen = [
 	{
-		"name": "erpnext",
-		"logo": "/assets/erpnext/images/erpnext-logo-blue.png",
-		"title": "ERPNext",
+		"name": "erpenthira",
+		"logo": "/assets/erpnext/images/erpenthira-logo-blue.png",
+		"title": "ERPEnthira",
 		"route": "/app/home",
 		"has_permission": "erpnext.check_app_permission",
 	}
